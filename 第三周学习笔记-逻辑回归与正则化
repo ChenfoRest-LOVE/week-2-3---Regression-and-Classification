@@ -1,0 +1,183 @@
+**吴恩达机器学习：有监督机器学习第三周学习笔记**
+
+### 逻辑回归 (Logistic Regression)
+
+#### 概述
+
+逻辑回归是一种用于二分类问题的监督学习算法。与线性回归不同，逻辑回归的输出值范围在0到1之间，可以解释为样本属于某一类别的概率。
+
+#### Sigmoid 函数
+
+逻辑回归使用 Sigmoid 函数（也称为 logistic 函数）将线性回归的输出转换为 0 到 1 之间的值：
+
+$$
+g(z) = \frac{1}{1 + e^{-z}}
+$$
+
+**特点**：
+
+* 当 $z \to \infty$，$g(z) \to 1$
+* 当 $z \to -\infty$，$g(z) \to 0$
+* 当 $z = 0$，$g(z) = 0.5$
+
+#### 逻辑回归模型
+
+给定特征向量 $\mathbf{x}$，逻辑回归的预测函数为：
+
+$$
+h_{\theta}(\mathbf{x}) = g(\theta^T \mathbf{x}) = \frac{1}{1 + e^{-\theta^T \mathbf{x}}}
+$$
+
+其中：
+
+* $\theta$ 是模型参数
+* $h_{\theta}(\mathbf{x})$ 表示 $y = 1$ 的概率，即 $P(y = 1 | \mathbf{x}; \theta)$
+
+#### 决策边界 (Decision Boundary)
+
+决策边界是将不同类别分开的边界：
+
+* 当 $h_{\theta}(\mathbf{x}) \geq 0.5$，预测 $y = 1$
+* 当 $h_{\theta}(\mathbf{x}) < 0.5$，预测 $y = 0$
+
+这等价于：
+
+* 当 $\theta^T \mathbf{x} \geq 0$，预测 $y = 1$
+* 当 $\theta^T \mathbf{x} < 0$，预测 $y = 0$
+
+决策边界可以是线性的，也可以是非线性的，取决于特征的选择和组合。
+
+#### 代价函数 (Cost Function)
+
+为了训练逻辑回归模型，我们定义代价函数：
+
+$$
+J(\theta) = \frac{1}{m} \sum_{i=1}^{m} \text{Cost}(h_{\theta}(\mathbf{x}^{(i)}), y^{(i)})
+$$
+
+其中单个样本的代价函数为：
+
+$$
+\text{Cost}(h_{\theta}(\mathbf{x}), y) = 
+\begin{cases}
+-\log(h_{\theta}(\mathbf{x})) & \text{if } y = 1 \\
+-\log(1 - h_{\theta}(\mathbf{x})) & \text{if } y = 0
+\end{cases}
+$$
+
+这可以简化为：
+
+$$
+\text{Cost}(h_{\theta}(\mathbf{x}), y) = -y \log(h_{\theta}(\mathbf{x})) - (1 - y) \log(1 - h_{\theta}(\mathbf{x}))
+$$
+
+完整的代价函数为：
+
+$$
+J(\theta) = -\frac{1}{m} \sum_{i=1}^{m} \left[y^{(i)} \log(h_{\theta}(\mathbf{x}^{(i)})) + (1 - y^{(i)}) \log(1 - h_{\theta}(\mathbf{x}^{(i)}))\right]
+$$
+
+#### 梯度下降 (Gradient Descent)
+
+对代价函数求导，得到梯度下降的更新规则：
+
+$$
+\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta)
+$$
+
+其中：
+
+$$
+\frac{\partial}{\partial \theta_j} J(\theta) = \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_j^{(i)}
+$$
+
+更新规则为：
+
+$$
+\theta_j := \theta_j - \alpha \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_j^{(i)}
+$$
+
+这与线性回归的更新规则形式相同，但 $h_{\theta}(\mathbf{x})$ 的定义不同。
+
+#### 正则化 (Regularization)
+
+过拟合问题 (Overfitting)
+
+过拟合是指模型在训练数据上表现良好，但在新数据上表现不佳的现象。
+
+* **欠拟合 (Underfitting)**：模型过于简单，无法捕捉数据的趋势
+* **过拟合 (Overfitting)**：模型过于复杂，捕捉了数据中的噪声
+
+**解决过拟合的方法**：
+
+* 减少特征数量
+
+  * 手动选择需要保留的特征
+  * 使用模型选择算法（如后向选择）
+* **正则化**：保留全部特征，但减小参数 $\theta_j$ 的大小，特别在有大量特征且每个特征对预测有少量贡献时特别有用
+
+#### 正则化线性回归
+
+线性回归的带正则化的代价函数：
+
+$$
+J(\theta) = \frac{1}{2m} \left[ \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)})^2 + \lambda \sum_{j=1}^{n} \theta_j^2 \right]
+$$
+
+其中：
+
+* $\lambda$ 是正则化参数
+* 正则化项不包括 $\theta_0$
+
+梯度下降更新规则变为：
+
+$$
+\theta_0 := \theta_0 - \alpha \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_0^{(i)}
+$$
+
+$$
+\theta_j := \theta_j - \alpha \left[ \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_j^{(i)} + \frac{\lambda}{m} \theta_j \right]
+$$
+
+这等价于：
+
+$$
+\theta_j := \theta_j \left( 1 - \frac{\alpha \lambda}{m} \right) - \alpha \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_j^{(i)}
+$$
+
+#### 正则化逻辑回归
+
+逻辑回归的带正则化的代价函数：
+
+$$
+J(\theta) = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log(h_{\theta}(\mathbf{x}^{(i)})) + (1 - y^{(i)}) \log(1 - h_{\theta}(\mathbf{x}^{(i)})) \right] + \frac{\lambda}{2m} \sum_{j=1}^{n} \theta_j^2
+$$
+
+梯度下降更新规则与线性回归类似，只是 $h_{\theta}(\mathbf{x})$ 的定义不同：
+
+$$
+\theta_0 := \theta_0 - \alpha \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_0^{(i)}
+$$
+
+$$
+\theta_j := \theta_j - \alpha \left[ \frac{1}{m} \sum_{i=1}^{m} (h_{\theta}(\mathbf{x}^{(i)}) - y^{(i)}) x_j^{(i)} + \frac{\lambda}{m} \theta_j \right]
+$$
+
+#### 高级优化算法
+
+除了梯度下降外，还有其他高级优化算法可以用于求解最优参数：
+
+* **共轭梯度法 (Conjugate Gradient)**
+* **BFGS (Broyden-Fletcher-Goldfarb-Shanno)**
+* **L-BFGS (Limited-memory BFGS)**
+
+**优点**：
+
+* 不需要手动选择学习率 $\alpha$
+* 通常比梯度下降更快
+* 可以自动执行线搜索
+
+**缺点**：
+
+* 更复杂，更难调试
+* 不应该“盲目”使用
